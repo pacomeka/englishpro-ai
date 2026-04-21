@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  nom             String
+  niveauInitial   String        @default("A2")
+  niveauActuel    String        @default("A2")
+  dateInscription DateTime      @default(now())
+  sessions        Session[]
+  cartes          Carte[]
+  progression     Progression[]
+  conversations   Conversation[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  date      DateTime @default(now())
+  dureeMin  Int
+  score     Int
+  phase     Int
+  activites Json
+}
+
+model Carte {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  motEn            String
+  traductionFr     String
+  exemple          String
+  niveauFacilite   Int      @default(2)
+  intervalle       Int      @default(1)
+  prochainRevision DateTime @default(now())
+  repetitions      Int      @default(0)
+  categorie        String   @default("Divers")
+  createdAt        DateTime @default(now())
+}
+
+model Progression {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  semaine     Int
+  moisAnnee   String
+  motsAppris  Int      @default(0)
+  scoreMoyen  Int      @default(0)
+  streakJours Int      @default(0)
+  tempsTotal  Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  sujet     String
+  messages  Json
+  phase     Int
+  createdAt DateTime @default(now())
+}
